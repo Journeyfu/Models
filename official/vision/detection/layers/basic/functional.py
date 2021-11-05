@@ -9,11 +9,12 @@
 from typing import Optional
 
 import numpy as np
-
+import megengine as mge
 import megengine.distributed as dist
 import megengine.functional as F
 from megengine import Tensor
 
+from megengine.autodiff import Function
 
 def get_padded_tensor(
     array: Tensor, multiple_number: int = 32, pad_value: float = 0
@@ -109,6 +110,12 @@ def batched_nms(
     boxes = boxes + offsets.reshape(-1, 1)
     return F.nn.nms(boxes, scores, iou_thresh, max_output)
 
+class ScaleGradient(Function):
+    def forward(self, input, scale):
+        self.scale = scale
+        return input
+    def backward(self, grad_output):
+        return grad_output * self.scale, mge.tensor(0, device=grad_output.device)
 
 def all_reduce_mean(array: Tensor) -> Tensor:
     if dist.get_world_size() > 1:

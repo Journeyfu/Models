@@ -11,6 +11,7 @@ from .faster_rcnn import *
 from .fcos import *
 from .freeanchor import *
 from .retinanet import *
+from .cascade_rcnn import *
 
 _EXCLUDE = {}
 __all__ = [k for k in globals().keys() if k not in _EXCLUDE and not k.startswith("_")]
